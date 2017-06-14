@@ -318,7 +318,7 @@ function (angular, _, sdk) {
 
     KairosDBQueryCtrl.prototype.changeHorAggregationInput = function() {
       this.target.hasSamplingRate = _.includes(
-          ['avg','dev','max','min','sum','least_squares','count','percentile', 'first', 'gaps', 'last'],
+          ['avg','dev','max','min','sum','least_squares','count','percentile', 'first', 'gaps', 'last', 'merge'],
           this.target.currentHorizontalAggregatorName);
       this.target.hasUnit = _.includes(['sampler','rate'], this.target.currentHorizontalAggregatorName);
       this.target.hasFactor = _.includes(['div','scale'], this.target.currentHorizontalAggregatorName);

@@ -291,6 +291,9 @@ function (angular, _, sdk, dateMath, kbn) {
         var groupAliases = {};
         var valueGroup = 1;
         var timeGroup = 1;
+        var histogram = false;
+        var preBucket = false;
+        var histoSeries = {};
 
         // collect values for group aliases, then use them as scopedVars for templating
         _.each(result.group_by, function(element) {
@@ -328,12 +331,44 @@ function (angular, _, sdk, dateMath, kbn) {
         for (var i = 0; i < result.values.length; i++) {
           var t = Math.floor(result.values[i][0]);
           var v = result.values[i][1];
-          datapoints[i] = [v, t];
+          if (typeof v === 'object') {
+            if (v.bins) {
+                var obj = v.bins;
+                for (var key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                      if (preBucket) {
+                          target = key;
+                          datapoints = histoSeries[key] || [];
+                          datapoints.push([obj[key], t]);
+                          histoSeries[key] = datapoints;
+                          histogram = true;
+                      } else {
+                          var val = parseFloat(key);
+                          var instances = obj[key];
+                          for (var l = 0; l < instances; l++) {
+                              datapoints.push([val, t]);
+                          }
+                      }
+                    }
+                }
+            }
+          } else {
+              datapoints[i] = [v, t];
+          }
         }
-        if (plotParams[index].exouter) {
-          datapoints = new PeakFilter(datapoints, 10);
+
+        if (!histogram && !preBucket) {
+            if (plotParams[index].exouter) {
+                datapoints = new PeakFilter(datapoints, 10);
+            }
+            output.push({target: target, datapoints: datapoints});
+        } else {
+            for (var alias in histoSeries) {
+              if (histoSeries.hasOwnProperty(alias)) {
+                output.push({target: alias, datapoints: histoSeries[alias]});
+              }
+            }
         }
-        output.push({ target: target, datapoints: datapoints });
       });
 
       index++;
