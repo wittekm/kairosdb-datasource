@@ -343,11 +343,7 @@ function (angular, _, sdk, dateMath, kbn) {
                           histoSeries[key] = datapoints;
                           histogram = true;
                       } else {
-                          var val = parseFloat(key);
-                          var instances = obj[key];
-                          for (var l = 0; l < instances; l++) {
-                              datapoints.push([val, t]);
-                          }
+                          datapoints.push([parseFloat(key), t, obj[key]]);
                       }
                     }
                 }
