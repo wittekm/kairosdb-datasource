@@ -223,7 +223,7 @@
         <select class="input-medium gf-form-input"
           ng-change="ctrl.changeHorAggregationInput()"
           ng-model="ctrl.target.currentHorizontalAggregatorName"
-          ng-options="f for f in ['avg','merge','dev','max','min','rate','sampler','count','sum','least_squares','percentile','scale','div', 'first', 'gaps', 'last', 'diff', 'trim']"></select>
+          ng-options="f for f in ['avg','merge','apdex','dev','max','min','rate','sampler','count','sum','least_squares','percentile','scale','div', 'first', 'gaps', 'last', 'diff', 'trim']"></select>
       </span>
 
       <!-- Different parameters -->
@@ -274,18 +274,35 @@
       </span>
 
       <label ng-show="ctrl.target.hasPercentile" class="gf-form-label width-12">
-        percentile
+          percentile
       </label>
       <span ng-show="ctrl.target.hasPercentile">
         <input type="text"
+               class="input-mini gf-form-input"
+               ng-model="ctrl.target.horAggregator.percentile"
+               ng-init="ctrl.target.horAggregator.percentile='0.75'"
+               spellcheck='false'
+               ng-change="ctrl.validateHorizontalAggregator()" >
+        <a bs-tooltip="ctrl.target.errors.horAggregator.percentile"
+           style="color: rgb(229, 189, 28)"
+           ng-show="ctrl.target.errors.horAggregator.percentile">
+          <i class="fa fa-warning"></i>
+        </a>
+      </span>
+
+      <label ng-show="ctrl.target.hasTarget" class="gf-form-label width-12">
+        target
+      </label>
+      <span ng-show="ctrl.target.hasTarget">
+        <input type="text"
         class="input-mini gf-form-input"
-        ng-model="ctrl.target.horAggregator.percentile"
-        ng-init="ctrl.target.horAggregator.percentile='0.75'"
+        ng-model="ctrl.target.horAggregator.target"
+        ng-init="ctrl.target.horAggregator.target='0.25'"
         spellcheck='false'
         ng-change="ctrl.validateHorizontalAggregator()" >
-        <a bs-tooltip="ctrl.target.errors.horAggregator.percentile"
+        <a bs-tooltip="ctrl.target.errors.horAggregator.target"
           style="color: rgb(229, 189, 28)"
-          ng-show="ctrl.target.errors.horAggregator.percentile">
+          ng-show="ctrl.target.errors.horAggregator.target">
           <i class="fa fa-warning"></i>
         </a>
       </span>

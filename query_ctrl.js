@@ -291,6 +291,9 @@ function (angular, _, sdk) {
         if (this.target.hasPercentile) {
           aggregator.percentile = this.target.horAggregator.percentile;
         }
+        if (this.target.hasTarget) {
+          aggregator.target = this.target.horAggregator.target;
+        }
         if (this.target.hasTrim) {
           aggregator.trim = this.target.horAggregator.trim;
         }
@@ -318,13 +321,14 @@ function (angular, _, sdk) {
 
     KairosDBQueryCtrl.prototype.changeHorAggregationInput = function() {
       this.target.hasSamplingRate = _.includes(
-          ['avg','dev','max','min','sum','least_squares','count','percentile', 'first', 'gaps', 'last', 'merge'],
+          ['avg','apdex','dev','max','min','sum','least_squares','count','percentile', 'first', 'gaps', 'last', 'merge'],
           this.target.currentHorizontalAggregatorName);
       this.target.hasUnit = _.includes(['sampler','rate'], this.target.currentHorizontalAggregatorName);
       this.target.hasFactor = _.includes(['div','scale'], this.target.currentHorizontalAggregatorName);
 
       this.target.hasNothing = _.includes(['diff'], this.target.currentHorizontalAggregatorName);
       this.target.hasPercentile = 'percentile' === this.target.currentHorizontalAggregatorName;
+      this.target.hasTarget = 'apdex' === this.target.currentHorizontalAggregatorName;
       this.target.hasTrim = _.includes(['trim'], this.target.currentHorizontalAggregatorName);
       this.validateHorizontalAggregator();
     };
@@ -361,6 +365,14 @@ function (angular, _, sdk) {
           errors.percentile = 'Percentile must be between 0 and 1';
           this.target.isAggregatorValid = false;
         }
+      }
+
+      if (this.target.hasTarget) {
+          if (!this.target.horAggregator.target ||
+              this.target.horAggregator.target<=0) {
+              errors.target = 'Target must be greater than 0';
+              this.target.isAggregatorValid = false;
+          }
       }
 
       if (this.target.hasTrim) {
