@@ -444,6 +444,10 @@ function (angular, _, sdk, dateMath, kbn) {
           returnedAggregator.percentile = chosenAggregator.percentile;
         }
 
+        if (chosenAggregator.target) {
+          returnedAggregator.target = chosenAggregator.target;
+        }
+
         if (chosenAggregator.trim) {
           returnedAggregator.trim = chosenAggregator.trim;
         }
