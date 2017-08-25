@@ -307,6 +307,7 @@ function (angular, _, sdk) {
       this.target.hasFactor = false;
       this.target.hasNothing = false;
       this.target.hasPercentile = false;
+      this.target.hasTarget = false;
       this.target.hasTrim = false;
     };
 
