@@ -3,17 +3,17 @@ module.exports = function(grunt) {
 grunt.loadNpmTasks('grunt-typescript');
 
 grunt.initConfig({
-typescript: {
-    base: {
-      src: ['*.ts'],
-      dest: '.',
+ts: {
+    default: {
+      src: ["**/*.ts", "!node_modules/**"],
+      tsconfig: true,
       options: {
-        module: 'amd'
-      }      
+        verbose: true
+      }
     }
   }
 });
 
-grunt.registerTask('default', ['typescript']);
-
+  grunt.loadNpmTasks("grunt-ts");
+  grunt.registerTask("default", ["ts"]);
 }
