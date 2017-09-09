@@ -46,7 +46,8 @@ function (angular, _, sdk, dateMath, kbn) {
     var targets = expandTargets(options);
     var queries = _.compact(_.map(targets, _.partial(convertTargetToQuery, options)));
     var plotParams = _.compact(_.map(targets, function(target) {
-      var alias = target.alias || self.getDefaultAlias(target);
+      var alias = target.aliasMode === "default" ? self.getDefaultAlias(target, options) : target.alias;
+      alias = currentTemplateValue(alias, target.templateSrv, options.scopedVars)[0];
 
       if (!target.hide) {
         return { alias: alias, exouter: target.exOuter };
@@ -374,34 +375,50 @@ function (angular, _, sdk, dateMath, kbn) {
   }
 
   function currentTemplateValue(value, templateSrv, scopedVars) {
-    var replacedValue;
-    // Make sure there is a variable in the value
-    if (templateSrv.variableExists(value)) {
-      // Check to see if the value is just a single variable
-      var fullVariableRegex = /^\s*(\$(\w+)|\[\[\s*(\w+)\s*\]\])\s*$/;
-      var match = fullVariableRegex.exec(value);
-      if (match) {
-        var variableName = match[2] || match[3];
-        if (scopedVars && scopedVars[variableName]) {
-          replacedValue = scopedVars[variableName].value;
+    var replacedValue = _.map(_.flatten([value]), function (value) {
+        // Make sure there is a variable in the value
+        if (templateSrv.variableExists(value)) {
+            // Check to see if the value is just a single variable
+            var fullVariableRegex = /(.*?)(\$(\w+)|\[\[\s*(\w+)\s*\]\])(.*)/g;
+            var match = fullVariableRegex.exec(value);
+            if (match) {
+                var variableName = match[3] || match[4];
+                if (scopedVars && scopedVars[variableName]) {
+                    return match[1] + scopedVars[variableName].value + match[5];
+                } else {
+                    console.log("variable " + variableName + " is not scoped.");
+                    var variable = templateSrv.variables.find(function (v) {
+                        return v.name === variableName;
+                    });
+                    console.log("variable", variable);
+                    if (variable === undefined) {
+                        //Looks like a variable, but it's not bound
+                        return match[0];
+                    }
+                    if (templateSrv.isAllValue(variable.current.value)) {
+                        var filteredOptions = _.filter(variable.options, function (v) {
+                            return v.value !== "$__all";
+                        });
+                        return _.map(filteredOptions, function (opt) {
+                            return match[1] + opt.value + match[5];
+                        });
+                    } else {
+                        return _.map(variable.current.value, function (val) {
+                          return match[1] + val + match[5];
+                        });
+                    }
+                }
+            } else {
+                // Supposedly it has a value, but we don't know how to match it.
+                console.warn("unknown how to match variable");
+                return templateSrv.replace(value, scopedVars);
+            }
         } else {
-          var variable = templateSrv.variables.find(function(v) { return v.name === variableName; });
-          if (variable.current.value[0] === "$__all") {
-            var filteredOptions = _.filter(variable.options, function(v) { return v.value !== "$__all"; });
-            replacedValue = _.map(filteredOptions, function(opt) { return opt.value; });
-          } else {
-            replacedValue = variable.current.value;
-          }
+            // The value does not have a variable
+            return value;
         }
-      } else {
-        // The value isn't a full value match, try to use the template replace
-        replacedValue = templateSrv.replace(value, scopedVars);
-      }
-    } else {
-      // The value does not have a variable
-      replacedValue = value;
-    }
-    return _.flatten([replacedValue]);
+    });
+    return _.flatten(replacedValue);
   }
 
   function convertTargetToQuery(options, target) {
@@ -409,7 +426,7 @@ function (angular, _, sdk, dateMath, kbn) {
       return null;
     }
 
-    var metricName = currentTemplateValue(target.metric, self.templateSrv, options.scopedVars);
+    var metricName = currentTemplateValue(target.metric, self.templateSrv, options.scopedVars)[0];
     var query = {
       name: metricName
     };
@@ -655,6 +672,12 @@ function (angular, _, sdk, dateMath, kbn) {
           function(metric) {
             var copy = angular.copy(target);
             copy.metric = metric;
+            //TODO: Generate a list of variables used by metric
+              // generate a list of variables used by alias
+              // alias variables should be a subset of metric variables
+              // for each metric, there should be a list of var1->value1, var2->value2 bindings
+              // use those bindings as scopedVars to bind each alias
+              // Note: there needs to be another argument added to the currentTemplateValue call that return a list [ templateValue -> {variable->binding} ]
             return copy;
           }
         );
