@@ -1,6 +1,6 @@
 define(["require", "exports", "./datasource", "./query_ctrl"], function (require, exports, datasource_1, query_ctrl_1) {
     "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.__esModule = true;
     exports.Datasource = datasource_1.KairosDBDatasource;
     exports.QueryCtrl = query_ctrl_1.KairosDBQueryCtrl;
     var KairosDBConfigCtrl = /** @class */ (function () {

@@ -7,10 +7,58 @@ import _ = require('lodash');
 import dateMath from 'app/core/utils/datemath';
 import kbn from 'app/core/utils/kbn';
 
+class Query {
+    name: string;
+    aggregators: QueryAggregator[] = [];
+    tags: { [id: string]: string[] } = {};
+    group_by: QueryGroupBy[] = [];
+}
 
-    'use strict';
+class QueryAggregator {
 
-    let self;
+}
+
+
+class QueryGroupBy {
+
+}
+
+type Options = {
+    panelId: any;
+    rangeRaw: RangeRaw;
+    targets: Target[];
+    scopedVars: { [id: string]: TemplateVariable };
+}
+
+type RangeRaw = {
+    from: string;
+    to: string;
+}
+
+type Target = {
+    metric: string;
+    alias: string;
+    exOuter: any;
+    hide: boolean;
+    aliasMode: AliasMode;
+    horizontalAggregators: HorizontalAggregator[];
+    groupByTags: string[];
+    tags: { [id: string]: string[] };
+    nonTagGroupBys: any[];
+}
+
+type HorizontalAggregator = {
+    
+}
+
+type TemplateVariable = {
+    text: string;
+    value: any;
+}
+
+type AliasMode = "custom" | "default";
+
+let self;
 
     /** @ngInject */
 export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv) {
@@ -39,14 +87,14 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
     };
 
     // Called once per panel (graph)
-    KairosDBDatasource.prototype.query = function (options: any) {
+    KairosDBDatasource.prototype.query = function (options: Options) {
         self.panelId = options.panelId;
         let start = options.rangeRaw.from;
         let end = options.rangeRaw.to;
 
         let targets = expandTargets(options);
         let queries = _.compact(_.map(targets, _.partial(convertTargetToQuery, options)));
-        let plotParams = _.compact(_.map(targets, function (target: any) {
+        let plotParams = _.compact(_.map(targets, function (target: Target) {
             if (!target.hide) {
                 return {alias: target.alias, exouter: target.exOuter};
             }
@@ -372,7 +420,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return {data: _.flatten(output)};
     }
 
-    function getAppliedTemplatedValuesList(value, templateSrv, scopedVars) {
+    function getAppliedTemplatedValuesList(value: string, templateSrv, scopedVars): string[] {
         let replacedValue = _.map(_.flatten([value]), function (value) {
             // Make sure there is a variable in the value
             if (templateSrv.variableExists(value)) {
@@ -419,17 +467,14 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return _.flatten(replacedValue);
     }
 
-    function convertTargetToQuery(options, target) {
+    function convertTargetToQuery(options, target: Target) {
         if (!target.metric || target.hide) {
             return null;
         }
 
         let metricName = target.metric;
-        let query: any = {
-            name: metricName
-        };
-
-        query.aggregators = [];
+        let query: Query = new Query();
+        query.name = metricName;
 
         if (target.horizontalAggregators) {
             _.each(target.horizontalAggregators, function (chosenAggregator: any) {
@@ -477,7 +522,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
 
         if (target.tags) {
             query.tags = angular.copy(target.tags);
-            _.forOwn(query.tags, function (value, key) {
+            _.forOwn(query.tags, function (value: string, key: string) {
                 query.tags[key] = getAppliedTemplatedValuesList(value, self.templateSrv, options.scopedVars);
             });
         }
@@ -506,7 +551,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return query;
     }
 
-    KairosDBDatasource.prototype.getDefaultAlias = function (target) {
+    KairosDBDatasource.prototype.getDefaultAlias = function (target: Target) {
         if (!target.metric) {
             return "";
         }
@@ -570,7 +615,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         };
     };
 
-    function convertToKairosTime(date, response_obj, start_stop_name) {
+    function convertToKairosTime(date: string, response_obj: any, start_stop_name: string) {
         let name;
 
         if (_.isString(date)) {
@@ -604,7 +649,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         response_obj[name] = date.valueOf();
     }
 
-    function convertToKairosDBTimeUnit(unit) {
+    function convertToKairosDBTimeUnit(unit: string) {
         switch (unit) {
             case 'ms':
                 return 'milliseconds';
@@ -661,14 +706,14 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return datapoints;
     }
 
-    function expandTargets(options) {
+    function expandTargets(options: Options) {
         return _.flatten(_.map(
             options.targets,
-            function (target: any) {
-                return _.map(
-                    getAppliedTemplatedValuesList(target.metric, self.templateSrv, options.scopedVars),
+            function (target) {
+                let metrics = getAppliedTemplatedValuesList(target.metric, self.templateSrv, options.scopedVars);
+                return _.map(metrics,
                     function (metric) {
-                        let copy: any = angular.copy(target);
+                        let copy = angular.copy(target);
                         copy.metric = metric;
                         copy.alias = copy.aliasMode === "default" ? self.getDefaultAlias(copy, options) : target.alias;
                         //TODO: Generate a list of variables used by metric

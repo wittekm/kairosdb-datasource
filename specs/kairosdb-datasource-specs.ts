@@ -1,3 +1,4 @@
+///<reference path="./test-common.d.ts" />
 import {describe, beforeEach, it, sinon, expect, angularMocks} from "test/lib/common";
 import helpers from 'test/specs/helpers';
 import {KairosDBDatasource} from '../datasource';
