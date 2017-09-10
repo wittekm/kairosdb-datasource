@@ -1,1 +1,5 @@
 .idea
+*.js
+*.js.map
+node_modules
+.tscache
