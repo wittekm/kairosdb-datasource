@@ -23,11 +23,27 @@ class QueryGroupBy {
 
 }
 
+type ScopedVars = { [id: string]: ScopedVariable };
+
+type TemplateServ = {
+    variableExists(varName: string): boolean;
+    isAllValue(value: string): boolean;
+    replace(value: string, scopedVars: ScopedVars): string;
+    replace(value: string, scopedVars: ScopedVars, format: string): string;
+    variables: QueryVariable[];
+}
+
+type QueryVariable = {
+    name: string;
+    options: TemplateVariableOption[];
+    current: TemplateVariableOption;
+}
+
 type Options = {
     panelId: any;
     rangeRaw: RangeRaw;
     targets: Target[];
-    scopedVars: { [id: string]: TemplateVariable };
+    scopedVars: ScopedVars;
 }
 
 type RangeRaw = {
@@ -48,15 +64,28 @@ type Target = {
 }
 
 type HorizontalAggregator = {
-    
+    name: string;
+    sampling_rate: string;
+    factor: number;
+    unit: string;
+    percentile: number;
+    target: number;
+    trim: TrimMode;
 }
 
-type TemplateVariable = {
+type TemplateVariableOption = {
+    text: string;
+    value: any;
+    selected: boolean;
+}
+
+type ScopedVariable = {
     text: string;
     value: any;
 }
 
 type AliasMode = "custom" | "default";
+type TrimMode = "both" | "first" | "last";
 
 let self;
 
@@ -70,7 +99,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         this.q = $q;
         this.backendSrv = backendSrv;
         this.templateSrv = templateSrv;
-
+        console.log("pow");
         self = this;
     }
 
@@ -162,10 +191,13 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         });
     };
 
-    KairosDBDatasource.prototype._performMetricKeyLookup = function (metric) {
+    KairosDBDatasource.prototype._performMetricKeyLookup = function (metric: string) {
         if (!metric) {
             return self.q.when([]);
         }
+
+        //TODO: get scoped vars here
+        let metricNames = getAppliedTemplatedValuesList(metric, self.templateSrv, {});
 
         let options = {
             method: 'POST',
@@ -173,9 +205,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             withCredentials: self.withCredentials,
             requestId: "metricKeyLookup",
             data: {
-                metrics: [
-                    {name: metric}
-                ],
+                metrics: _.map(metricNames, n => { return { name: n } } ),
                 cache_time: 0,
                 start_absolute: 0
             }
@@ -197,6 +227,8 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
 
     KairosDBDatasource.prototype._performMetricKeyValueLookup = function (metric, key, otherTags) {
         metric = metric.trim();
+        //TODO: get scoped vars here
+        let metricNames = getAppliedTemplatedValuesList(metric, self.templateSrv, {});
         key = key.trim();
         if (!metric || !key) {
             return self.q.when([]);
@@ -221,13 +253,14 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             metricsOptions["tags"] = tags;
         }
 
+        let allOptions = _.map(metricNames, n => { let mo = angular.copy(metricsOptions); mo.name = n; return mo; });
         let options = {
             method: 'POST',
             withCredentials: self.withCredentials,
             url: self.url + '/api/v1/datapoints/query/tags',
             requestId: self.panelId + "." + metric + "." + key + "." + "metricKeyValueLookup",
             data: {
-                metrics: [metricsOptions],
+                metrics: allOptions,
                 cache_time: 0,
                 start_absolute: 0
             }
@@ -294,12 +327,12 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             return self._performMetricSuggestQuery(metrics_query[1]).then(responseTransform);
         }
 
-        let tag_names_query = interpolated.match(tag_names_regex);
+        let tag_names_query = query.match(tag_names_regex);
         if (tag_names_query) {
             return self._performMetricKeyLookup(tag_names_query[1]).then(responseTransform);
         }
 
-        let tag_values_query = interpolated.match(tag_values_regex);
+        let tag_values_query = query.match(tag_values_regex);
         if (tag_values_query) {
             return self._performMetricKeyValueLookup(tag_values_query[1], tag_values_query[2], tag_values_query[3]).then(responseTransform);
         }
@@ -420,7 +453,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return {data: _.flatten(output)};
     }
 
-    function getAppliedTemplatedValuesList(value: string, templateSrv, scopedVars): string[] {
+    function getAppliedTemplatedValuesList(value: string, templateSrv: TemplateServ, scopedVars: ScopedVars): string[] {
         let replacedValue = _.map(_.flatten([value]), function (value) {
             // Make sure there is a variable in the value
             if (templateSrv.variableExists(value)) {
@@ -432,17 +465,15 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
                     if (scopedVars && scopedVars[variableName]) {
                         return match[1] + scopedVars[variableName].value + match[5];
                     } else {
-                        console.log("variable " + variableName + " is not scoped.");
-                        let variable = templateSrv.variables.find(function (v) {
+                        let variable = _.find(templateSrv.variables, function (v) {
                             return v.name === variableName;
                         });
-                        console.log("variable", variable);
                         if (variable === undefined) {
                             //Looks like a variable, but it's not bound
                             return match[0];
                         }
                         if (templateSrv.isAllValue(variable.current.value)) {
-                            let filteredOptions = _.filter(variable.options, function (v: any) {
+                            let filteredOptions = _.filter(variable.options, function (v) {
                                 return v.value !== "$__all";
                             });
                             return _.map(filteredOptions, function (opt) {
@@ -477,7 +508,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         query.name = metricName;
 
         if (target.horizontalAggregators) {
-            _.each(target.horizontalAggregators, function (chosenAggregator: any) {
+            _.each(target.horizontalAggregators, function (chosenAggregator) {
                 let returnedAggregator: any = {
                     name: chosenAggregator.name
                 };
@@ -540,7 +571,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
 
             if (target.nonTagGroupBys) {
                 _.each(target.nonTagGroupBys, function (rawGroupBy) {
-                    let formattedGroupBy: any = angular.copy(rawGroupBy);
+                    let formattedGroupBy = angular.copy(rawGroupBy);
                     if (formattedGroupBy.name === 'time') {
                         formattedGroupBy.range_size = self.convertToKairosInterval(formattedGroupBy.range_size);
                     }
@@ -563,7 +594,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         _.forEach(target.groupByTags, function (tag) {
             groupAlias += tag + "=$_tag_group_" + tag + ", ";
         });
-        _.forEach(target.nonTagGroupBys, function (group: any) {
+        _.forEach(target.nonTagGroupBys, function (group) {
             if (group.name === "value") {
                 groupAlias += "value_group_" + valueGroup + "=$_value_group_" + valueGroup.toString() + ", ";
                 valueGroup++;
