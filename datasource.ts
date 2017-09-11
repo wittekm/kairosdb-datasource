@@ -28,6 +28,7 @@ type ScopedVars = { [id: string]: ScopedVariable };
 type TemplateServ = {
     variableExists(varName: string): boolean;
     isAllValue(value: string): boolean;
+    replace(value: string): string;
     replace(value: string, scopedVars: ScopedVars): string;
     replace(value: string, scopedVars: ScopedVars, format: string): string;
     variables: QueryVariable[];
@@ -44,6 +45,7 @@ type Options = {
     rangeRaw: RangeRaw;
     targets: Target[];
     scopedVars: ScopedVars;
+    interval: string;
 }
 
 type RangeRaw = {
@@ -87,10 +89,20 @@ type ScopedVariable = {
 type AliasMode = "custom" | "default";
 type TrimMode = "both" | "first" | "last";
 
-let self;
+class KairosdDBDatasource {
+    private url: string;
+    private type: string;
+    private name: string;
+    private withCredentials: any;
+    private supportMetrics: boolean;
+    private q: any;
+    private backendSrv: any;
+    private templateSrv: TemplateServ;
+    private panelId: string;
+
 
     /** @ngInject */
-export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv) {
+    constructor(instanceSettings, $q, backendSrv, templateSrv) {
         this.type = instanceSettings.type;
         this.url = instanceSettings.url.replace(/\/+$/, "");
         this.name = instanceSettings.name;
@@ -100,15 +112,14 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         this.backendSrv = backendSrv;
         this.templateSrv = templateSrv;
         console.log("pow");
-        self = this;
     }
 
     // Function to check Datasource health
-    KairosDBDatasource.prototype.testDatasource = function () {
-        return self.backendSrv.datasourceRequest({
-            url: self.url + '/api/v1/health/check',
+    testDatasource() {
+        return this.backendSrv.datasourceRequest({
+            url: this.url + '/api/v1/health/check',
             method: 'GET'
-        }).then(function (response) {
+        }).then((response) => {
             if (response.status === 204) {
                 return {status: "success", message: "Data source is working", title: "Success"};
             }
@@ -116,14 +127,14 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
     };
 
     // Called once per panel (graph)
-    KairosDBDatasource.prototype.query = function (options: Options) {
-        self.panelId = options.panelId;
+    query(options: Options) {
+        this.panelId = options.panelId;
         let start = options.rangeRaw.from;
         let end = options.rangeRaw.to;
 
-        let targets = expandTargets(options);
-        let queries = _.compact(_.map(targets, _.partial(convertTargetToQuery, options)));
-        let plotParams = _.compact(_.map(targets, function (target: Target) {
+        let targets = this.expandTargets(options);
+        let queries = _.compact(_.map(targets, _.bind(this.convertTargetToQuery, this, options)));
+        let plotParams = _.compact(_.map(targets, (target: Target) => {
             if (!target.hide) {
                 return {alias: target.alias, exouter: target.exOuter};
             }
@@ -132,57 +143,58 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             }
         }));
 
-        let handleKairosDBQueryResponseAlias = _.partial(handleKairosDBQueryResponse, plotParams, self.templateSrv);
+        let handleKairosDBQueryResponseAlias = _.bind(this.handleKairosDBQueryResponse, this, plotParams, this.templateSrv);
+
 
         // No valid targets, return the empty result to save a round trip.
         if (_.isEmpty(queries)) {
-            let d = self.q.defer();
+            let d = this.q.defer();
             d.resolve({data: []});
             return d.promise;
         }
 
-        return self.performTimeSeriesQuery(queries, start, end)
-            .then(handleKairosDBQueryResponseAlias, handleQueryError);
+        return this.performTimeSeriesQuery(queries, start, end)
+            .then(handleKairosDBQueryResponseAlias, this.handleQueryError);
     };
 
-    KairosDBDatasource.prototype.performTimeSeriesQuery = function (queries, start, end) {
+    performTimeSeriesQuery(queries, start, end) {
         let reqBody = {
             metrics: queries,
             cache_time: 0
         };
 
-        convertToKairosTime(start, reqBody, 'start');
-        convertToKairosTime(end, reqBody, 'end');
+        this.convertToKairosTime(start, reqBody, 'start');
+        this.convertToKairosTime(end, reqBody, 'end');
 
         let options = {
             method: 'POST',
-            withCredentials: self.withCredentials,
-            url: self.url + '/api/v1/datapoints/query',
+            withCredentials: this.withCredentials,
+            url: this.url + '/api/v1/datapoints/query',
             data: reqBody
         };
 
-        return self.backendSrv.datasourceRequest(options);
+        return this.backendSrv.datasourceRequest(options);
     };
 
     /**
      * Gets the list of metrics
      * @returns {*|Promise}
      */
-    KairosDBDatasource.prototype._performMetricSuggestQuery = function (metric: string) {
+    _performMetricSuggestQuery(metric: string) {
         //Requires a KairosDB version supporting server-side metric names filtering
         let options = {
-            url: self.url + '/api/v1/metricnames?containing=' + metric,
-            withCredentials: self.withCredentials,
+            url: this.url + '/api/v1/metricnames?containing=' + metric,
+            withCredentials: this.withCredentials,
             method: 'GET',
-            requestId: self.panelId + ".metricnames"
+            requestId: this.panelId + ".metricnames"
         };
 
-        return self.backendSrv.datasourceRequest(options).then(function (response) {
+        return this.backendSrv.datasourceRequest(options).then((response) => {
             if (!response.data) {
-                return self.q.when([]);
+                return this.q.when([]);
             }
             let metrics = [];
-            _.each(response.data.results, function (r) {
+            _.each(response.data.results, (r) => {
                 if (r.indexOf(metric) >= 0) {
                     metrics.push(r);
                 }
@@ -191,18 +203,18 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         });
     };
 
-    KairosDBDatasource.prototype._performMetricKeyLookup = function (metric: string) {
+    _performMetricKeyLookup(metric: string) {
         if (!metric) {
-            return self.q.when([]);
+            return this.q.when([]);
         }
 
         //TODO: get scoped vars here
-        let metricNames = getAppliedTemplatedValuesList(metric, self.templateSrv, {});
+        let metricNames = this.getAppliedTemplatedValuesList(metric, this.templateSrv, {});
 
         let options = {
             method: 'POST',
-            url: self.url + '/api/v1/datapoints/query/tags',
-            withCredentials: self.withCredentials,
+            url: this.url + '/api/v1/datapoints/query/tags',
+            withCredentials: this.withCredentials,
             requestId: "metricKeyLookup",
             data: {
                 metrics: _.map(metricNames, n => { return { name: n } } ),
@@ -211,12 +223,12 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             }
         };
 
-        return self.backendSrv.datasourceRequest(options).then(function (result) {
+        return this.backendSrv.datasourceRequest(options).then((result) => {
             if (!result.data) {
-                return self.q.when([]);
+                return this.q.when([]);
             }
             let tagks = [];
-            _.each(result.data.queries[0].results[0].tags, function (tagv, tagk) {
+            _.each(result.data.queries[0].results[0].tags, (tagv, tagk) => {
                 if (tagks.indexOf(tagk) === -1) {
                     tagks.push(tagk);
                 }
@@ -225,20 +237,20 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         });
     };
 
-    KairosDBDatasource.prototype._performMetricKeyValueLookup = function (metric, key, otherTags) {
+    _performMetricKeyValueLookup(metric, key, otherTags) {
         metric = metric.trim();
         //TODO: get scoped vars here
-        let metricNames = getAppliedTemplatedValuesList(metric, self.templateSrv, {});
+        let metricNames = this.getAppliedTemplatedValuesList(metric, this.templateSrv, {});
         key = key.trim();
         if (!metric || !key) {
-            return self.q.when([]);
+            return this.q.when([]);
         }
 
         let metricsOptions = {name: metric};
         if (otherTags) {
             let tags = {};
             let kvps = otherTags.match(/\w+\s*=\s*(?:[^,{}]+|\{[^,{}]+(?:,\s*[^,{}]+)*\})/g);
-            kvps.forEach(function (pair) {
+            kvps.forEach((pair) => {
                 let kv = pair.split("=");
                 let k = kv[0] ? kv[0].trim() : "";
                 let value = kv[1] ? kv[1].trim() : "";
@@ -256,9 +268,9 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         let allOptions = _.map(metricNames, n => { let mo = angular.copy(metricsOptions); mo.name = n; return mo; });
         let options = {
             method: 'POST',
-            withCredentials: self.withCredentials,
-            url: self.url + '/api/v1/datapoints/query/tags',
-            requestId: self.panelId + "." + metric + "." + key + "." + "metricKeyValueLookup",
+            withCredentials: this.withCredentials,
+            url: this.url + '/api/v1/datapoints/query/tags',
+            requestId: this.panelId + "." + metric + "." + key + "." + "metricKeyValueLookup",
             data: {
                 metrics: allOptions,
                 cache_time: 0,
@@ -266,19 +278,19 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             }
         };
 
-        return self.backendSrv.datasourceRequest(options).then(function (result) {
+        return this.backendSrv.datasourceRequest(options).then((result) => {
             if (!result.data) {
-                return self.q.when([]);
+                return this.q.when([]);
             }
             return result.data.queries[0].results[0].tags[key];
         });
     };
 
-    KairosDBDatasource.prototype.performTagSuggestQuery = function (metric) {
+    performTagSuggestQuery(metric) {
         let options = {
-            url: self.url + '/api/v1/datapoints/query/tags',
+            url: this.url + '/api/v1/datapoints/query/tags',
             method: 'POST',
-            withCredentials: self.withCredentials,
+            withCredentials: this.withCredentials,
             requestId: "tagSuggestQuery",
             data: {
                 metrics: [
@@ -289,7 +301,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             }
         };
 
-        return self.backendSrv.datasourceRequest(options).then(function (response) {
+        return this.backendSrv.datasourceRequest(options).then((response) => {
             if (!response.data) {
                 return [];
             }
@@ -299,21 +311,21 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         });
     };
 
-    KairosDBDatasource.prototype.metricFindQuery = function (query) {
+    metricFindQuery(query) {
         if (!query) {
-            return self.q.when([]);
+            return this.q.when([]);
         }
 
         let interpolated;
         try {
-            interpolated = self.templateSrv.replace(query);
+            interpolated = this.templateSrv.replace(query);
         }
         catch (err) {
-            return self.q.reject(err);
+            return this.q.reject(err);
         }
 
-        let responseTransform = function (result) {
-            return _.map(result, function (value) {
+        let responseTransform = (result) => {
+            return _.map(result, (value) => {
                 return {text: value};
             });
         };
@@ -324,20 +336,20 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
 
         let metrics_query = interpolated.match(metrics_regex);
         if (metrics_query) {
-            return self._performMetricSuggestQuery(metrics_query[1]).then(responseTransform);
+            return this._performMetricSuggestQuery(metrics_query[1]).then(responseTransform);
         }
 
         let tag_names_query = query.match(tag_names_regex);
         if (tag_names_query) {
-            return self._performMetricKeyLookup(tag_names_query[1]).then(responseTransform);
+            return this._performMetricKeyLookup(tag_names_query[1]).then(responseTransform);
         }
 
         let tag_values_query = query.match(tag_values_regex);
         if (tag_values_query) {
-            return self._performMetricKeyValueLookup(tag_values_query[1], tag_values_query[2], tag_values_query[3]).then(responseTransform);
+            return this._performMetricKeyValueLookup(tag_values_query[1], tag_values_query[2], tag_values_query[3]).then(responseTransform);
         }
 
-        return self.q.when([]);
+        return this.q.when([]);
     };
 
     /////////////////////////////////////////////////////////////////////////
@@ -349,23 +361,23 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
      * @param results
      * @returns {*}
      */
-    function handleQueryError(results) {
+    handleQueryError(results) {
         if (results.data.errors && !_.isEmpty(results.data.errors)) {
             let errors = {
                 message: results.data.errors[0]
             };
-            return self.q.reject(errors);
+            return this.q.reject(errors);
         }
         else {
-            return self.q.reject(results);
+            return this.q.reject(results);
         }
     }
 
-    function handleKairosDBQueryResponse(plotParams, templateSrv, results) {
+    handleKairosDBQueryResponse(plotParams, templateSrv, results) {
         let output = [];
         let index = 0;
-        _.each(results.data.queries, function (series: any) {
-            _.each(series.results, function (result: any) {
+        _.each(results.data.queries, (series: any) => {
+            _.each(series.results, (result: any) => {
                 let details = "";
                 let target = plotParams[index].alias;
                 let groupAliases = {};
@@ -376,9 +388,9 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
                 let histoSeries = {};
 
                 // collect values for group aliases, then use them as scopedVars for templating
-                _.each(result.group_by, function (element: any) {
+                _.each(result.group_by, (element: any) => {
                     if (element.name === "tag") {
-                        _.each(element.group, function (value, key) {
+                        _.each(element.group, (value, key) => {
                             groupAliases["_tag_group_" + key] = {value: value};
 
                             // If the Alias name starts with $group_by, then use that
@@ -435,7 +447,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
 
                 if (!histogram && !preBucket) {
                     if (plotParams[index].exouter) {
-                        datapoints = PeakFilter(datapoints, 10);
+                        datapoints = this.peakFilter(datapoints, 10);
                     }
                     output.push({target: target, datapoints: datapoints});
                 } else {
@@ -453,8 +465,8 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return {data: _.flatten(output)};
     }
 
-    function getAppliedTemplatedValuesList(value: string, templateSrv: TemplateServ, scopedVars: ScopedVars): string[] {
-        let replacedValue = _.map(_.flatten([value]), function (value) {
+    getAppliedTemplatedValuesList(value: string, templateSrv: TemplateServ, scopedVars: ScopedVars): string[] {
+        let replacedValue = _.map(_.flatten([value]), (value) => {
             // Make sure there is a variable in the value
             if (templateSrv.variableExists(value)) {
                 // Check to see if the value is just a single variable
@@ -465,7 +477,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
                     if (scopedVars && scopedVars[variableName]) {
                         return match[1] + scopedVars[variableName].value + match[5];
                     } else {
-                        let variable = _.find(templateSrv.variables, function (v) {
+                        let variable = _.find(templateSrv.variables, (v) => {
                             return v.name === variableName;
                         });
                         if (variable === undefined) {
@@ -473,14 +485,14 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
                             return match[0];
                         }
                         if (templateSrv.isAllValue(variable.current.value)) {
-                            let filteredOptions = _.filter(variable.options, function (v) {
+                            let filteredOptions = _.filter(variable.options, (v) => {
                                 return v.value !== "$__all";
                             });
-                            return _.map(filteredOptions, function (opt) {
+                            return _.map(filteredOptions, (opt) => {
                                 return match[1] + opt.value + match[5];
                             });
                         } else {
-                            return _.map(variable.current.value, function (val) {
+                            return _.map(variable.current.value, (val) => {
                                 return match[1] + val + match[5];
                             });
                         }
@@ -498,7 +510,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return _.flatten(replacedValue);
     }
 
-    function convertTargetToQuery(options, target: Target) {
+    convertTargetToQuery(options: Options, target: Target) {
         if (!target.metric || target.hide) {
             return null;
         }
@@ -508,13 +520,13 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         query.name = metricName;
 
         if (target.horizontalAggregators) {
-            _.each(target.horizontalAggregators, function (chosenAggregator) {
+            _.each(target.horizontalAggregators, (chosenAggregator: HorizontalAggregator):void => {
                 let returnedAggregator: any = {
                     name: chosenAggregator.name
                 };
 
                 if (chosenAggregator.sampling_rate) {
-                    returnedAggregator.sampling = self.convertToKairosInterval(
+                    returnedAggregator.sampling = this.convertToKairosInterval(
                         chosenAggregator.sampling_rate === "auto" ? options.interval : chosenAggregator.sampling_rate);
                     returnedAggregator.align_sampling = true;
                     //returnedAggregator.align_start_time = true;
@@ -553,9 +565,9 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
 
         if (target.tags) {
             query.tags = angular.copy(target.tags);
-            _.forOwn(query.tags, function (value: string, key: string) {
-                query.tags[key] = getAppliedTemplatedValuesList(value, self.templateSrv, options.scopedVars);
-            });
+            _.forOwn(query.tags, _.bind((value: string, key: string) => {
+                query.tags[key] = this.getAppliedTemplatedValuesList(value, this.templateSrv, options.scopedVars);
+            }, this));
         }
 
         if (target.groupByTags || target.nonTagGroupBys) {
@@ -563,17 +575,17 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             if (target.groupByTags) {
                 query.group_by.push({
                     name: "tag",
-                    tags: _.map(angular.copy(target.groupByTags), function (tag) {
-                        return self.templateSrv.replace(tag);
+                    tags: _.map(angular.copy(target.groupByTags), (tag) => {
+                        return this.templateSrv.replace(tag);
                     })
                 });
             }
 
             if (target.nonTagGroupBys) {
-                _.each(target.nonTagGroupBys, function (rawGroupBy) {
+                _.each(target.nonTagGroupBys, (rawGroupBy) => {
                     let formattedGroupBy = angular.copy(rawGroupBy);
                     if (formattedGroupBy.name === 'time') {
-                        formattedGroupBy.range_size = self.convertToKairosInterval(formattedGroupBy.range_size);
+                        formattedGroupBy.range_size = this.convertToKairosInterval(formattedGroupBy.range_size);
                     }
                     query.group_by.push(formattedGroupBy);
                 });
@@ -582,7 +594,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return query;
     }
 
-    KairosDBDatasource.prototype.getDefaultAlias = function (target: Target) {
+    getDefaultAlias(target: Target) {
         if (!target.metric) {
             return "";
         }
@@ -591,10 +603,10 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         let valueGroup = 1;
         let timeGroup = 1;
 
-        _.forEach(target.groupByTags, function (tag) {
+        _.forEach(target.groupByTags, (tag) => {
             groupAlias += tag + "=$_tag_group_" + tag + ", ";
         });
-        _.forEach(target.nonTagGroupBys, function (group) {
+        _.forEach(target.nonTagGroupBys, (group) => {
             if (group.name === "value") {
                 groupAlias += "value_group_" + valueGroup + "=$_value_group_" + valueGroup.toString() + ", ";
                 valueGroup++;
@@ -617,8 +629,8 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
     /// Time conversion functions specifics to KairosDB
     //////////////////////////////////////////////////////////////////////
 
-    KairosDBDatasource.prototype.convertToKairosInterval = function (intervalString) {
-        intervalString = self.templateSrv.replace(intervalString);
+    convertToKairosInterval(intervalString) {
+        intervalString = this.templateSrv.replace(intervalString);
 
         let interval_regex = /(\d+(?:\.\d+)?)([Mwdhmsy])/;
         let interval_regex_ms = /(\d+(?:\.\d+)?)(ms)/;
@@ -642,11 +654,11 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
 
         return {
             value: value,
-            unit: convertToKairosDBTimeUnit(unit)
+            unit: this.convertToKairosDBTimeUnit(unit)
         };
     };
 
-    function convertToKairosTime(date: string, response_obj: any, start_stop_name: string) {
+    convertToKairosTime(date: string, response_obj: any, start_stop_name: string) {
         let name;
 
         if (_.isString(date)) {
@@ -665,7 +677,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
 
                     response_obj[name] = {
                         value: value,
-                        unit: convertToKairosDBTimeUnit(unit)
+                        unit: this.convertToKairosDBTimeUnit(unit)
                     };
                     return;
                 }
@@ -680,7 +692,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         response_obj[name] = date.valueOf();
     }
 
-    function convertToKairosDBTimeUnit(unit: string) {
+    convertToKairosDBTimeUnit(unit: string) {
         switch (unit) {
             case 'ms':
                 return 'milliseconds';
@@ -704,7 +716,7 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         }
     }
 
-    function PeakFilter(dataIn, limit) {
+    peakFilter(dataIn, limit) {
         let datapoints = dataIn;
         let arrLength = datapoints.length;
         if (arrLength <= 3) {
@@ -737,16 +749,16 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
         return datapoints;
     }
 
-    function expandTargets(options: Options) {
+    expandTargets(options: Options): Target[] {
         return _.flatten(_.map(
             options.targets,
-            function (target) {
-                let metrics = getAppliedTemplatedValuesList(target.metric, self.templateSrv, options.scopedVars);
+            (target: Target): Target[] => {
+                let metrics = this.getAppliedTemplatedValuesList(target.metric, this.templateSrv, options.scopedVars);
                 return _.map(metrics,
-                    function (metric) {
+                    (metric: string) => {
                         let copy = angular.copy(target);
                         copy.metric = metric;
-                        copy.alias = copy.aliasMode === "default" ? self.getDefaultAlias(copy, options) : target.alias;
+                        copy.alias = copy.aliasMode === "default" ? this.getDefaultAlias(copy) : target.alias;
                         //TODO: Generate a list of variables used by metric
                         // generate a list of variables used by alias
                         // alias variables should be a subset of metric variables
@@ -759,4 +771,8 @@ export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv
             }
         ));
     }
+}
 
+export function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv) {
+    return new KairosdDBDatasource(instanceSettings, $q, backendSrv, templateSrv);
+}

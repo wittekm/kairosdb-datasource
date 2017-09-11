@@ -5,7 +5,10 @@ module.exports = function(grunt) {
     ts: {
       default: {
         src: ["**/*.ts", "!node_modules/**"],
-        tsconfig: true,
+        tsconfig: {
+          tsconfig: "tsconfig.json",
+          passthrough: true
+        },
         options: {
           verbose: true
         }
