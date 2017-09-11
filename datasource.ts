@@ -135,6 +135,7 @@ class KairosdDBDatasource {
         let targets = this.expandTargets(options);
         let queries = _.compact(_.map(targets, _.bind(this.convertTargetToQuery, this, options)));
         let plotParams = _.compact(_.map(targets, (target: Target) => {
+
             if (!target.hide) {
                 return {alias: target.alias, exouter: target.exOuter};
             }
@@ -469,9 +470,24 @@ class KairosdDBDatasource {
         let replacedValue = _.map(_.flatten([value]), (value) => {
             // Make sure there is a variable in the value
             if (templateSrv.variableExists(value)) {
+
+                // Get the list of variables in the string
+                let variableRegex = /\$(\w+)|\[\[\s*(\w+)\s*\]\]/g;
+                let staticParts = [];
+                let variables = [];
+                let match: RegExpExecArray;
+                let currentIndex = 0;
+                while ((match = variableRegex.exec(value)) != null) {
+                    staticParts.push(value.slice(currentIndex, variableRegex.lastIndex - match[0].length));
+                    let variable = match[1] || match[2];
+                    variables.push(variable);
+                    currentIndex = variableRegex.lastIndex
+                }
+                staticParts.push(value.slice(currentIndex));
+
                 // Check to see if the value is just a single variable
                 let fullVariableRegex = /(.*?)(\$(\w+)|\[\[\s*(\w+)\s*\]\])(.*)/g;
-                let match = fullVariableRegex.exec(value);
+                match = fullVariableRegex.exec(value);
                 if (match) {
                     let variableName = match[3] || match[4];
                     if (scopedVars && scopedVars[variableName]) {
@@ -565,9 +581,9 @@ class KairosdDBDatasource {
 
         if (target.tags) {
             query.tags = angular.copy(target.tags);
-            _.forOwn(query.tags, _.bind((value: string, key: string) => {
+            _.forOwn(query.tags, (value: string, key: string) => {
                 query.tags[key] = this.getAppliedTemplatedValuesList(value, this.templateSrv, options.scopedVars);
-            }, this));
+            });
         }
 
         if (target.groupByTags || target.nonTagGroupBys) {
@@ -754,11 +770,16 @@ class KairosdDBDatasource {
             options.targets,
             (target: Target): Target[] => {
                 let metrics = this.getAppliedTemplatedValuesList(target.metric, this.templateSrv, options.scopedVars);
-                return _.map(metrics,
-                    (metric: string) => {
+                let aliases = this.getAppliedTemplatedValuesList(target.alias, this.templateSrv, options.scopedVars);
+                if (metrics.length != aliases.length) {
+                    console.warn("aliases do not match metrics");
+                }
+
+                return _.map(_.zip(metrics, aliases),
+                    ([metric, alias]: [string, string]) => {
                         let copy = angular.copy(target);
                         copy.metric = metric;
-                        copy.alias = copy.aliasMode === "default" ? this.getDefaultAlias(copy) : target.alias;
+                        copy.alias = copy.aliasMode === "default" ? this.getDefaultAlias(copy) : alias;
                         //TODO: Generate a list of variables used by metric
                         // generate a list of variables used by alias
                         // alias variables should be a subset of metric variables
