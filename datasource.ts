@@ -466,8 +466,9 @@ class KairosdDBDatasource {
         return {data: _.flatten(output)};
     }
 
-    getAppliedTemplatedValuesList(value: string, templateSrv: TemplateServ, scopedVars: ScopedVars): string[] {
-        let replacedValue = _.map(_.flatten([value]), (value) => {
+    getAppliedTemplatedValuesList(value: string | string[], templateSrv: TemplateServ, scopedVars: ScopedVars): string[] {
+        let valueArray: string[] = _.flatten([value]);
+        let replacedValue = _.map(valueArray, (value) => {
             // Make sure there is a variable in the value
             if (templateSrv.variableExists(value)) {
 
@@ -508,7 +509,7 @@ class KairosdDBDatasource {
                                 return match[1] + opt.value + match[5];
                             });
                         } else {
-                            return _.map(variable.current.value, (val) => {
+                            return _.map(_.flatten([variable.current.value]), (val) => {
                                 return match[1] + val + match[5];
                             });
                         }
@@ -581,7 +582,7 @@ class KairosdDBDatasource {
 
         if (target.tags) {
             query.tags = angular.copy(target.tags);
-            _.forOwn(query.tags, (value: string, key: string) => {
+            _.forOwn(query.tags, (value: string[], key) => {
                 query.tags[key] = this.getAppliedTemplatedValuesList(value, this.templateSrv, options.scopedVars);
             });
         }
