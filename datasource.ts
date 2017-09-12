@@ -155,7 +155,7 @@ class KairosdDBDatasource {
         }
 
         return this.performTimeSeriesQuery(queries, start, end)
-            .then(handleKairosDBQueryResponseAlias, this.handleQueryError);
+            .then(handleKairosDBQueryResponseAlias, () => this.handleQueryError);
     };
 
     performTimeSeriesQuery(queries, start, end) {
