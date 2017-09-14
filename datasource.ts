@@ -111,7 +111,6 @@ class KairosdDBDatasource {
         this.q = $q;
         this.backendSrv = backendSrv;
         this.templateSrv = templateSrv;
-        console.log("pow");
     }
 
     // Function to check Datasource health
@@ -340,12 +339,12 @@ class KairosdDBDatasource {
             return this._performMetricSuggestQuery(metrics_query[1]).then(responseTransform);
         }
 
-        let tag_names_query = query.match(tag_names_regex);
+        let tag_names_query = interpolated.match(tag_names_regex);
         if (tag_names_query) {
             return this._performMetricKeyLookup(tag_names_query[1]).then(responseTransform);
         }
 
-        let tag_values_query = query.match(tag_values_regex);
+        let tag_values_query = interpolated.match(tag_values_regex);
         if (tag_values_query) {
             return this._performMetricKeyValueLookup(tag_values_query[1], tag_values_query[2], tag_values_query[3]).then(responseTransform);
         }
