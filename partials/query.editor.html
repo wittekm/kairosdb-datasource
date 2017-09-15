@@ -6,7 +6,7 @@
         spellcheck="false"
         bs-typeahead="ctrl.suggestMetrics"
         placeholder="metric name"
-        data-min-length=3 data-items=20
+        data-min-length=3 data-items=500 data-match-all="true"
         ng-blur="ctrl.targetBlur()">
         <a bs-tooltip="ctrl.target.errors.metric"
           style="color: rgb(229, 189, 28)"

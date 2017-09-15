@@ -27,10 +27,10 @@ function (angular, _, sdk) {
       }
       this.target.errors = validateTarget(this.target);
 
-      this.metricNamesCallDelay = 1000;
-      this.tagNamesDelay = 1000;
-      this.tagValueDelay = 1000;
-      this.metricNamesSuggestionsLimit = 100;
+      this.metricNamesCallDelay = 300;
+      this.tagNamesDelay = 300;
+      this.tagValueDelay = 300;
+      this.metricNamesSuggestionsLimit = 500;
       this.metricNamesPromise = null;
       this.tagNamesPromise = null;
       this.tagValuesPromise = null;

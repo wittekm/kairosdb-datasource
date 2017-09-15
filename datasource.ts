@@ -194,8 +194,9 @@ class KairosdDBDatasource {
                 return this.q.when([]);
             }
             let metrics = [];
+            let metricLower = metric.toLowerCase();
             _.each(response.data.results, (r) => {
-                if (r.indexOf(metric) >= 0) {
+                if (r.toLowerCase().indexOf(metricLower) >= 0) {
                     metrics.push(r);
                 }
             });
