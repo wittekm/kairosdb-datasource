@@ -424,7 +424,7 @@ class KairosdDBDatasource {
                 for (let i = 0; i < result.values.length; i++) {
                     let t = Math.floor(result.values[i][0]);
                     let v = result.values[i][1];
-                    if (typeof v === 'object') {
+                    if (v !== null && typeof v === 'object') {
                         if (v.bins) {
                             let obj = v.bins;
                             for (let key in obj) {
