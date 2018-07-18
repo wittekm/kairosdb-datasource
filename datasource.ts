@@ -773,7 +773,18 @@ class KairosdDBDatasource {
                 let metrics = this.getAppliedTemplatedValuesList(target.metric, this.templateSrv, options.scopedVars);
                 let aliases = this.getAppliedTemplatedValuesList(target.alias, this.templateSrv, options.scopedVars);
                 if (metrics.length != aliases.length) {
-                    console.warn("aliases do not match metrics");
+                    if (aliases.length == 1) {
+                        let alias = aliases[0];
+                        aliases = [];
+                        for (let i = 0; i < metrics.length; i++) {
+                            aliases.push(alias);
+                        }
+                    } else {
+                        console.warn("aliases do not match metrics");
+                        while (aliases.length < metrics.length) {
+                            aliases.push(metrics[aliases.length])
+                        }
+                    }
                 }
 
                 return _.map(_.zip(metrics, aliases),
