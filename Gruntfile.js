@@ -56,24 +56,10 @@ module.exports = function (grunt) {
         },
         ts: {
             build: {
-                src: [
-                    "dist/**/*.ts"
-                ],
-                dest: "dist/",
-                options: {
-                    moduleResolution: "node",
-                    module: "system",
-                    target: "es5",
-                    rootDir: "dist/",
-                    allowSyntheticDefaultImports: true,
-                    keepDirectoryHierarchy: false,
-                    declaration: true,
-                    emitDecoratorMetadata: true,
-                    esModuleInterop: true,
-                    experimentalDecorators: true,
-                    sourceMap: true,
-                    noImplicitAny: false
-                }
+                tsconfig: {
+                    tsconfig: './tsconfig.json',
+                    passThrough: true,
+                },
             }
         },
         babel: {
