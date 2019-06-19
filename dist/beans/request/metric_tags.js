@@ -9,7 +9,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            MetricTags = (function () {
+            MetricTags = /** @class */ (function () {
                 function MetricTags() {
                     this.tags = {};
                     this.initialized = false;

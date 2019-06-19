@@ -19,7 +19,7 @@ System.register(["./aggregator_parameter"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            AnyAggregatorParameter = (function (_super) {
+            AnyAggregatorParameter = /** @class */ (function (_super) {
                 __extends(AnyAggregatorParameter, _super);
                 function AnyAggregatorParameter(name, text, value) {
                     if (text === void 0) { text = name; }

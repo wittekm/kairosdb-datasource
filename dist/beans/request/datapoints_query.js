@@ -5,7 +5,7 @@ System.register([], function (exports_1, context_1) {
     return {
         setters: [],
         execute: function () {
-            DatapointsQuery = (function () {
+            DatapointsQuery = /** @class */ (function () {
                 function DatapointsQuery(startAbsolute, endAbsolute, metrics) {
                     this.cache_time = 0;
                     this.start_absolute = startAbsolute.unix() * 1000;

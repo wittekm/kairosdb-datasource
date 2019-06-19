@@ -25,7 +25,7 @@ System.register(["./aggregator", "./parameters/enum_aggregator_parameter", "./ut
             }
         ],
         execute: function () {
-            TrimAggregator = (function (_super) {
+            TrimAggregator = /** @class */ (function (_super) {
                 __extends(TrimAggregator, _super);
                 function TrimAggregator() {
                     var _this = _super.call(this, TrimAggregator.NAME) || this;

@@ -25,7 +25,7 @@ System.register(["lodash", "./aggregator_editor"], function (exports_1, context_
             }
         ],
         execute: function () {
-            AggregatorCtrl = (function () {
+            AggregatorCtrl = /** @class */ (function () {
                 function AggregatorCtrl() {
                     this.isAutoValue = false;
                     this.isAutoValue = !lodash_1.default.isNil(this.value.autoValueSwitch) && this.value.autoValueSwitch.enabled;

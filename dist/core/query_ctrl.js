@@ -48,8 +48,9 @@ System.register(["app/plugins/sdk", "../beans/aggregators/aggregators", "../bean
             }
         ],
         execute: function () {
-            KairosDBQueryCtrl = (function (_super) {
+            KairosDBQueryCtrl = /** @class */ (function (_super) {
                 __extends(KairosDBQueryCtrl, _super);
+                /** @ngInject **/
                 function KairosDBQueryCtrl($scope, $injector) {
                     var _this = _super.call(this, $scope, $injector) || this;
                     _this.aggregators = aggregators_1.AGGREGATORS;

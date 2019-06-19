@@ -14,6 +14,7 @@ export declare class KairosDBQueryCtrl extends QueryCtrl {
     private targetValidator;
     private tags;
     private legacyTargetConverter;
+    /** @ngInject **/
     constructor($scope: any, $injector: any);
     getCollapsedText(): string;
     private onTargetChange;

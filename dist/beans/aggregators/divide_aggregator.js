@@ -22,7 +22,7 @@ System.register(["./aggregator", "./parameters/any_aggregator_parameter"], funct
             }
         ],
         execute: function () {
-            DivideAggregator = (function (_super) {
+            DivideAggregator = /** @class */ (function (_super) {
                 __extends(DivideAggregator, _super);
                 function DivideAggregator() {
                     var _this = _super.call(this, DivideAggregator.NAME) || this;

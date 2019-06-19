@@ -29,7 +29,8 @@ System.register(["lodash", "../utils/promise_utils"], function (exports_1, conte
         ],
         execute: function () {
             METRIC_NAMES_SUGGESTIONS_LIMIT = 20;
-            MetricNameFieldCtrl = (function () {
+            MetricNameFieldCtrl = /** @class */ (function () {
+                /** @ngInject **/
                 function MetricNameFieldCtrl($scope, $q, uiSegmentSrv) {
                     this.uiSegmentSrv = uiSegmentSrv;
                     this.aliasInputVisible = false;
@@ -64,7 +65,7 @@ System.register(["lodash", "../utils/promise_utils"], function (exports_1, conte
                 return MetricNameFieldCtrl;
             }());
             exports_1("MetricNameFieldCtrl", MetricNameFieldCtrl);
-            MetricNameFieldLink = (function () {
+            MetricNameFieldLink = /** @class */ (function () {
                 function MetricNameFieldLink(scope, element) {
                     scope.getMetricInputValue = function () {
                         return element[0].getElementsByTagName("input")[0].value;

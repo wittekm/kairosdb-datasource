@@ -9,7 +9,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            MetricNamesStore = (function () {
+            MetricNamesStore = /** @class */ (function () {
                 function MetricNamesStore(datasource, promiseUtils, datasourceUrl) {
                     this.initialized = false;
                     this.cacheKey = "KAIROSDB_METRIC_NAMES_" + datasourceUrl;

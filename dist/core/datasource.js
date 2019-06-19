@@ -48,7 +48,7 @@ System.register(["lodash", "../beans/function", "../beans/request/legacy_target_
             }
         ],
         execute: function () {
-            KairosDBDatasource = (function () {
+            KairosDBDatasource = /** @class */ (function () {
                 function KairosDBDatasource(instanceSettings, $q, backendSrv, templateSrv) {
                     this.initialized = false;
                     this.initializationError = false;
@@ -92,7 +92,7 @@ System.register(["lodash", "../beans/function", "../beans/request/legacy_target_
                         }
                     });
                     if (!this.targetValidator.areValidTargets(convertedTargets)) {
-                        return;
+                        return; // todo: target validation, throw message to grafana with detailed info
                     }
                     var templatingUtils = new templating_utils_1.TemplatingUtils(this.templateSrv, options.scopedVars);
                     var aliases = templatingUtils.replaceAll(convertedTargets.map(function (target) { return target.query.alias; }));

@@ -33,7 +33,7 @@ System.register(["lodash", "../../beans/request/datapoints_query", "../../beans/
             }
         ],
         execute: function () {
-            KairosDBQueryBuilder = (function () {
+            KairosDBQueryBuilder = /** @class */ (function () {
                 function KairosDBQueryBuilder(withCredentials, url, apiPath, templateSrv, scopedVars, snapToIntervals) {
                     this.withCredentials = withCredentials;
                     this.url = url;

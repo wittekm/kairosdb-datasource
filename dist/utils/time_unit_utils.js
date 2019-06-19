@@ -12,7 +12,7 @@ System.register(["lodash", "../beans/aggregators/utils"], function (exports_1, c
             }
         ],
         execute: function () {
-            TimeUnitUtils = (function () {
+            TimeUnitUtils = /** @class */ (function () {
                 function TimeUnitUtils() {
                 }
                 TimeUnitUtils.extractUnit = function (interval) {
@@ -36,6 +36,7 @@ System.register(["lodash", "../beans/aggregators/utils"], function (exports_1, c
                 };
                 TimeUnitUtils.ceilingToAvailableUnit = function (interval, availableUnits) {
                     var intervalMillis = this.intervalToMillis(interval);
+                    // match the first available unit, available Units must be ordered
                     for (var _i = 0, availableUnits_1 = availableUnits; _i < availableUnits_1.length; _i++) {
                         var unitValue = availableUnits_1[_i];
                         var unit = unitValue[0];
@@ -44,6 +45,7 @@ System.register(["lodash", "../beans/aggregators/utils"], function (exports_1, c
                             return [utils_1.TimeUnit[unit], value.toString()];
                         }
                     }
+                    // Nothing matched so return the max UnitValue
                     var max = availableUnits[availableUnits.length - 1];
                     return [utils_1.TimeUnit[max[0]], max[1].toString()];
                 };
@@ -85,11 +87,11 @@ System.register(["lodash", "../beans/aggregators/utils"], function (exports_1, c
                             return 60 * 60 * 1000;
                         case utils_1.TimeUnit.DAYS:
                             return 24 * 60 * 60 * 1000;
-                        case utils_1.TimeUnit.WEEKS:
+                        case utils_1.TimeUnit.WEEKS: // 7 days
                             return 7 * 24 * 60 * 60 * 1000;
-                        case utils_1.TimeUnit.MONTHS:
+                        case utils_1.TimeUnit.MONTHS: // 30 days
                             return 30 * 24 * 60 * 60 * 1000;
-                        case utils_1.TimeUnit.YEARS:
+                        case utils_1.TimeUnit.YEARS: // 365 days
                             return 365 * 24 * 60 * 60 * 1000;
                     }
                 };

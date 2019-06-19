@@ -1,1 +1,1 @@
-{"version":3,"file":"auto_value_switch.js","sourceRoot":"","sources":["auto_value_switch.ts"],"names":[],"mappings":";;;;;;;YACA;gBAII,yBAAY,mBAA0C;oBAF/C,YAAO,GAAY,KAAK,CAAC;oBAG5B,IAAI,CAAC,mBAAmB,GAAG,mBAAmB,CAAC;gBACnD,CAAC;gBACL,sBAAC;YAAD,CAAC,AAPD,IAOC;;QACD,CAAC"}
+{"version":3,"file":"auto_value_switch.js","sourceRoot":"","sources":["../../src/directives/auto_value_switch.ts"],"names":[],"mappings":";;;;;;;YACA;gBAII,yBAAY,mBAA0C;oBAF/C,YAAO,GAAY,KAAK,CAAC;oBAG5B,IAAI,CAAC,mBAAmB,GAAG,mBAAmB,CAAC;gBACnD,CAAC;gBACL,sBAAC;YAAD,CAAC,AAPD,IAOC;;QACD,CAAC"}

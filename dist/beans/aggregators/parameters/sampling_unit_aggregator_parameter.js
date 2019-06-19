@@ -22,7 +22,7 @@ System.register(["../utils", "./enum_aggregator_parameter"], function (exports_1
             }
         ],
         execute: function () {
-            SamplingUnitAggregatorParameter = (function (_super) {
+            SamplingUnitAggregatorParameter = /** @class */ (function (_super) {
                 __extends(SamplingUnitAggregatorParameter, _super);
                 function SamplingUnitAggregatorParameter() {
                     var _this = _super.call(this, "unit", utils_1.TimeUnit, "unit", "HOURS") || this;

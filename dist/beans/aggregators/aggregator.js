@@ -5,7 +5,7 @@ System.register([], function (exports_1, context_1) {
     return {
         setters: [],
         execute: function () {
-            Aggregator = (function () {
+            Aggregator = /** @class */ (function () {
                 function Aggregator(name) {
                     this.parameters = [];
                     this.autoValueSwitch = undefined;

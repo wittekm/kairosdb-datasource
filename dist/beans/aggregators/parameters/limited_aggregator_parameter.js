@@ -19,7 +19,7 @@ System.register(["./aggregator_parameter"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            LimitedAggregatorParameter = (function (_super) {
+            LimitedAggregatorParameter = /** @class */ (function (_super) {
                 __extends(LimitedAggregatorParameter, _super);
                 function LimitedAggregatorParameter(name, allowedValues, text, value) {
                     if (text === void 0) { text = name; }

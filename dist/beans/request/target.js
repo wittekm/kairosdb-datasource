@@ -15,7 +15,7 @@ System.register(["app/core/utils/datemath", "../aggregators/aggregators", "./gro
             }
         ],
         execute: function () {
-            KairosDBTarget = (function () {
+            KairosDBTarget = /** @class */ (function () {
                 function KairosDBTarget() {
                     this.metricName = undefined;
                     this.alias = undefined;

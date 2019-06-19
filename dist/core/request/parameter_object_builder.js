@@ -15,7 +15,7 @@ System.register(["lodash", "../../beans/aggregators/utils", "../../utils/time_un
             }
         ],
         execute: function () {
-            ParameterObjectBuilder = (function () {
+            ParameterObjectBuilder = /** @class */ (function () {
                 function ParameterObjectBuilder(interval, autoValueSwitch, snapToIntervals) {
                     var _a;
                     this.autoValueDependentParameters = [];

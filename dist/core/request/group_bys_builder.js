@@ -9,7 +9,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            GroupBysBuilder = (function () {
+            GroupBysBuilder = /** @class */ (function () {
                 function GroupBysBuilder(templatingUtils, samplingConverter) {
                     this.templatingUtils = templatingUtils;
                     this.samplingConverter = samplingConverter;

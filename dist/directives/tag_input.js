@@ -29,7 +29,8 @@ System.register(["lodash", "../utils/promise_utils"], function (exports_1, conte
         ],
         execute: function () {
             TAG_VALUE_SUGGESTIONS_LIMIT = 20;
-            TagInputCtrl = (function () {
+            TagInputCtrl = /** @class */ (function () {
+                /** @ngInject **/
                 function TagInputCtrl($scope, $q, uiSegmentSrv) {
                     this.uiSegmentSrv = uiSegmentSrv;
                     this.promiseUtils = new promise_utils_1.PromiseUtils($q);
@@ -48,7 +49,7 @@ System.register(["lodash", "../utils/promise_utils"], function (exports_1, conte
                 return TagInputCtrl;
             }());
             exports_1("TagInputCtrl", TagInputCtrl);
-            TagInputLink = (function () {
+            TagInputLink = /** @class */ (function () {
                 function TagInputLink(scope, element) {
                     scope.getTagInputValue = function () {
                         return element[0].getElementsByTagName("input")[0].value;

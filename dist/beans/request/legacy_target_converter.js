@@ -42,7 +42,7 @@ System.register(["lodash", "../../directives/group_by/group_by_time_entry", "../
             }
         ],
         execute: function () {
-            LegacyTargetConverter = (function () {
+            LegacyTargetConverter = /** @class */ (function () {
                 function LegacyTargetConverter() {
                 }
                 LegacyTargetConverter.prototype.convert = function (oldTarget) {

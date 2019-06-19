@@ -22,7 +22,7 @@ System.register(["./parameters/any_aggregator_parameter", "./range_aggregator"],
             }
         ],
         execute: function () {
-            ApdexAggregator = (function (_super) {
+            ApdexAggregator = /** @class */ (function (_super) {
                 __extends(ApdexAggregator, _super);
                 function ApdexAggregator() {
                     var _this = _super.call(this, ApdexAggregator.NAME) || this;

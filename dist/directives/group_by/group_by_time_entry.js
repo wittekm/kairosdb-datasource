@@ -5,7 +5,7 @@ System.register([], function (exports_1, context_1) {
     return {
         setters: [],
         execute: function () {
-            GroupByTimeEntry = (function () {
+            GroupByTimeEntry = /** @class */ (function () {
                 function GroupByTimeEntry(interval, unit, count) {
                     this.interval = undefined;
                     this.unit = undefined;

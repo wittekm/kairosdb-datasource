@@ -28,7 +28,7 @@ System.register(["./aggregator", "./parameters/alignment_aggregator_parameter", 
             }
         ],
         execute: function () {
-            RateAggregator = (function (_super) {
+            RateAggregator = /** @class */ (function (_super) {
                 __extends(RateAggregator, _super);
                 function RateAggregator() {
                     var _this = _super.call(this, RateAggregator.NAME) || this;

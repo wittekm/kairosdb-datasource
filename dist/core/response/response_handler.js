@@ -9,7 +9,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            KairosDBResponseHandler = (function () {
+            KairosDBResponseHandler = /** @class */ (function () {
                 function KairosDBResponseHandler(seriesNameBuilder) {
                     this.seriesNameBuilder = seriesNameBuilder;
                 }

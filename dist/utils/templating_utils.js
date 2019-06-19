@@ -9,7 +9,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            TemplatingUtils = (function () {
+            TemplatingUtils = /** @class */ (function () {
                 function TemplatingUtils(templateSrv, scopedVars) {
                     this.templateSrv = templateSrv;
                     this.scopedVars = scopedVars;

@@ -15,7 +15,7 @@ System.register(["app/core/utils/kbn", "../../beans/aggregators/utils", "../../u
             }
         ],
         execute: function () {
-            SamplingConverter = (function () {
+            SamplingConverter = /** @class */ (function () {
                 function SamplingConverter() {
                 }
                 SamplingConverter.prototype.convert = function (value, unit) {

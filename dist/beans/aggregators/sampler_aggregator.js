@@ -25,7 +25,7 @@ System.register(["./aggregator", "./parameters/enum_aggregator_parameter", "./ut
             }
         ],
         execute: function () {
-            SamplerAggregator = (function (_super) {
+            SamplerAggregator = /** @class */ (function (_super) {
                 __extends(SamplerAggregator, _super);
                 function SamplerAggregator() {
                     var _this = _super.call(this, SamplerAggregator.NAME) || this;

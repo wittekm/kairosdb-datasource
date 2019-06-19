@@ -9,7 +9,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            TemplatingFunctionsCtrl = (function () {
+            TemplatingFunctionsCtrl = /** @class */ (function () {
                 function TemplatingFunctionsCtrl(templatingFunctionResolver) {
                     this.functions = [];
                     this.templatingFunctionResolver = templatingFunctionResolver;

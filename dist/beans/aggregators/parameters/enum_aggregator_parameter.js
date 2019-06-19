@@ -22,7 +22,7 @@ System.register(["../utils", "./limited_aggregator_parameter"], function (export
             }
         ],
         execute: function () {
-            EnumAggregatorParameter = (function (_super) {
+            EnumAggregatorParameter = /** @class */ (function (_super) {
                 __extends(EnumAggregatorParameter, _super);
                 function EnumAggregatorParameter(name, type, text, value) {
                     if (text === void 0) { text = name; }

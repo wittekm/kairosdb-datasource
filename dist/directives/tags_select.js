@@ -24,7 +24,8 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            TagsSelectCtrl = (function () {
+            TagsSelectCtrl = /** @class */ (function () {
+                /** @ngInject **/
                 function TagsSelectCtrl(uiSegmentSrv) {
                     var _this = this;
                     this.uiSegmentSrv = uiSegmentSrv;

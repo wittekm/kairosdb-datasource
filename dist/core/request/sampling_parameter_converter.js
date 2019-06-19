@@ -15,7 +15,7 @@ System.register(["lodash", "../../beans/aggregators/parameters/sampling_aggregat
             }
         ],
         execute: function () {
-            SamplingParameterConverter = (function () {
+            SamplingParameterConverter = /** @class */ (function () {
                 function SamplingParameterConverter(samplingConverter) {
                     this.samplingConverter = samplingConverter;
                 }

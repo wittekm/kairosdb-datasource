@@ -28,7 +28,7 @@ System.register(["./aggregator", "./parameters/any_aggregator_parameter", "./par
             }
         ],
         execute: function () {
-            FilterAggregator = (function (_super) {
+            FilterAggregator = /** @class */ (function (_super) {
                 __extends(FilterAggregator, _super);
                 function FilterAggregator() {
                     var _this = _super.call(this, FilterAggregator.NAME) || this;

@@ -5,7 +5,7 @@ System.register([], function (exports_1, context_1) {
     return {
         setters: [],
         execute: function () {
-            MetricQuery = (function () {
+            MetricQuery = /** @class */ (function () {
                 function MetricQuery(name, tags, aggregators, group_by, start_absolute, end_absolute) {
                     this.limit = 0;
                     this.name = name;

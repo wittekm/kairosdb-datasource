@@ -13,6 +13,12 @@ System.register(["app/core/utils/datemath", "lodash", "moment"], function (expor
     function formatDate(date) {
         return date.format(absoluteFormat);
     }
+    // handles expressions like
+    // 5m
+    // 5m to now/d
+    // now/d to now
+    // now/d
+    // if no to <expr> then to now is assumed
     function describeTextRange(expr) {
         var isLast = expr.indexOf("+") !== 0;
         if (expr.indexOf("now") === -1) {

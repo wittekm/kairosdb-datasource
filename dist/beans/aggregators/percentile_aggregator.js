@@ -22,7 +22,7 @@ System.register(["./parameters/any_aggregator_parameter", "./range_aggregator"],
             }
         ],
         execute: function () {
-            PercentileAggregator = (function (_super) {
+            PercentileAggregator = /** @class */ (function (_super) {
                 __extends(PercentileAggregator, _super);
                 function PercentileAggregator() {
                     var _this = _super.call(this, PercentileAggregator.NAME) || this;

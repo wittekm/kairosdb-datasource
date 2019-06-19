@@ -31,7 +31,7 @@ System.register(["../../directives/auto_value_switch", "./aggregator", "./parame
             }
         ],
         execute: function () {
-            RangeAggregator = (function (_super) {
+            RangeAggregator = /** @class */ (function (_super) {
                 __extends(RangeAggregator, _super);
                 function RangeAggregator(name) {
                     var _this = _super.call(this, name) || this;

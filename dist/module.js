@@ -1,3 +1,4 @@
+/// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 System.register(["angular", "./core/config_ctrl", "./core/datasource", "./core/query_ctrl", "./directives/aggregator", "./directives/aggregator_editor", "./directives/aggregators", "./directives/group_by/group_by_tags", "./directives/group_by/group_by_time", "./directives/group_by/group_by_value", "./directives/metric_name_field", "./directives/tag_input", "./directives/tags_select", "./directives/timepicker"], function (exports_1, context_1) {
     "use strict";
     var angular_1, config_ctrl_1, datasource_1, query_ctrl_1, aggregator_1, aggregator_editor_1, aggregators_1, group_by_tags_1, group_by_time_1, group_by_value_1, metric_name_field_1, tag_input_1, tags_select_1, timepicker_1, KairosDBQueryOptionsCtrl;
@@ -47,11 +48,11 @@ System.register(["angular", "./core/config_ctrl", "./core/datasource", "./core/q
                 timepicker_1 = timepicker_1_1;
             }
         ],
-        execute: function () {
+        execute: function () {/// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
             exports_1("ConfigCtrl", config_ctrl_1.KairosDBConfigCtrl);
             exports_1("Datasource", datasource_1.KairosDBDatasource);
             exports_1("QueryCtrl", query_ctrl_1.KairosDBQueryCtrl);
-            KairosDBQueryOptionsCtrl = (function () {
+            KairosDBQueryOptionsCtrl = /** @class */ (function () {
                 function KairosDBQueryOptionsCtrl() {
                 }
                 KairosDBQueryOptionsCtrl.templateUrl = "partials/query.options.html";

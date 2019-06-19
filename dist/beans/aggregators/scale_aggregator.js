@@ -22,7 +22,7 @@ System.register(["./aggregator", "./parameters/any_aggregator_parameter"], funct
             }
         ],
         execute: function () {
-            ScaleAggregator = (function (_super) {
+            ScaleAggregator = /** @class */ (function (_super) {
                 __extends(ScaleAggregator, _super);
                 function ScaleAggregator() {
                     var _this = _super.call(this, ScaleAggregator.NAME) || this;

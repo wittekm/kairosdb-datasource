@@ -22,7 +22,7 @@ System.register(["../utils", "./enum_aggregator_parameter"], function (exports_1
             }
         ],
         execute: function () {
-            AlignmentAggregatorParameter = (function (_super) {
+            AlignmentAggregatorParameter = /** @class */ (function (_super) {
                 __extends(AlignmentAggregatorParameter, _super);
                 function AlignmentAggregatorParameter() {
                     var _this = _super.call(this, "sampling", utils_1.Alignment, "align by", "PERIOD") || this;

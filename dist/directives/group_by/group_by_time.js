@@ -28,7 +28,7 @@ System.register(["lodash", "../../beans/aggregators/utils", "../../directives/gr
             }
         ],
         execute: function () {
-            GroupByTimeCtrl = (function () {
+            GroupByTimeCtrl = /** @class */ (function () {
                 function GroupByTimeCtrl() {
                     this.inputVisible = false;
                     this.allowedUnitValues = utils_1.EnumValues(utils_1.TimeUnit);

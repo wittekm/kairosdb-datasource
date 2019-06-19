@@ -22,7 +22,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            GroupByValueCtrl = (function () {
+            GroupByValueCtrl = /** @class */ (function () {
                 function GroupByValueCtrl() {
                 }
                 GroupByValueCtrl.prototype.add = function (value) {

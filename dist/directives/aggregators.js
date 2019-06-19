@@ -25,7 +25,7 @@ System.register(["lodash", "./aggregator_editor"], function (exports_1, context_
             }
         ],
         execute: function () {
-            AggregatorsCtrl = (function () {
+            AggregatorsCtrl = /** @class */ (function () {
                 function AggregatorsCtrl() {
                 }
                 AggregatorsCtrl.prototype.add = function (entry) {

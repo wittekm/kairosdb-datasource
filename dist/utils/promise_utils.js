@@ -5,7 +5,7 @@ System.register([], function (exports_1, context_1) {
     return {
         setters: [],
         execute: function () {
-            PromiseUtils = (function () {
+            PromiseUtils = /** @class */ (function () {
                 function PromiseUtils($q) {
                     this.$q = $q;
                 }

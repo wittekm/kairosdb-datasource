@@ -35,7 +35,8 @@ System.register(["angular", "app/core/utils/datemath", "lodash", "moment", "../u
             }
         ],
         execute: function () {
-            TimePickerCtrl = (function () {
+            TimePickerCtrl = /** @class */ (function () {
+                /** @ngInject */
                 function TimePickerCtrl($scope, $rootScope, timeSrv) {
                     var _this = this;
                     this.$scope = $scope;
@@ -54,9 +55,11 @@ System.register(["angular", "app/core/utils/datemath", "lodash", "moment", "../u
                     });
                     $rootScope.onAppEvent("closeTimepicker", this.openDropdown.bind(this), $scope);
                     this.dashboard.on("refresh", this.onRefresh.bind(this), $scope);
+                    // init options
                     this.panel = this.dashboard.timepicker;
                     lodash_1.default.defaults(this.panel, TimePickerCtrl.defaults);
                     this.firstDayOfWeek = moment_1.default.localeData().firstDayOfWeek();
+                    // init time stuff
                     this.onRefresh();
                 }
                 TimePickerCtrl.prototype.onRefresh = function () {

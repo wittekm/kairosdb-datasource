@@ -19,7 +19,7 @@ System.register(["./any_aggregator_parameter"], function (exports_1, context_1) 
             }
         ],
         execute: function () {
-            SamplingAggregatorParameter = (function (_super) {
+            SamplingAggregatorParameter = /** @class */ (function (_super) {
                 __extends(SamplingAggregatorParameter, _super);
                 function SamplingAggregatorParameter(text, value) {
                     if (text === void 0) { text = name; }

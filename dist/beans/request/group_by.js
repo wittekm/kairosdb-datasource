@@ -9,7 +9,7 @@ System.register(["../../directives/group_by/group_by_time_entry"], function (exp
             }
         ],
         execute: function () {
-            GroupBy = (function () {
+            GroupBy = /** @class */ (function () {
                 function GroupBy() {
                     this.tags = [];
                     this.value = [];

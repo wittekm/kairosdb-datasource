@@ -5,7 +5,7 @@ System.register([], function (exports_1, context_1) {
     return {
         setters: [],
         execute: function () {
-            KairosDBConfigCtrl = (function () {
+            KairosDBConfigCtrl = /** @class */ (function () {
                 function KairosDBConfigCtrl() {
                 }
                 KairosDBConfigCtrl.templateUrl = "partials/config.html";

@@ -9,7 +9,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            SeriesNameBuilder = (function () {
+            SeriesNameBuilder = /** @class */ (function () {
                 function SeriesNameBuilder() {
                 }
                 SeriesNameBuilder.prototype.build = function (metricName, alias, groupBys) {

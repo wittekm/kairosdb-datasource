@@ -23,7 +23,7 @@ System.register(["lodash"], function (exports_1, context_1) {
             }
         ],
         execute: function () {
-            GroupByTagsCtrl = (function () {
+            GroupByTagsCtrl = /** @class */ (function () {
                 function GroupByTagsCtrl() {
                     var _this = this;
                     this.selectedTags = {};

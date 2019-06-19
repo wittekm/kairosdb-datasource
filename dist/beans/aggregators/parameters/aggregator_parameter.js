@@ -5,7 +5,7 @@ System.register([], function (exports_1, context_1) {
     return {
         setters: [],
         execute: function () {
-            AggregatorParameter = (function () {
+            AggregatorParameter = /** @class */ (function () {
                 function AggregatorParameter(name, text, value) {
                     if (text === void 0) { text = name; }
                     if (value === void 0) { value = null; }
