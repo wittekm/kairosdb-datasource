@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "outDir": "./dist",
+    "outDir": "dist",
     "module": "system",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -10,6 +10,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "sourceMap": true,
+    "sourceRoot": "/",
     "noImplicitAny": false
   },
   "exclude": ["dist", "specs"]

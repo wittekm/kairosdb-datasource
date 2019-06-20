@@ -1,9 +1,12 @@
 System.register(["app/plugins/sdk", "../beans/aggregators/aggregators", "../beans/request/legacy_target_converter", "../beans/request/metric_tags", "../beans/request/target", "../css/plugin.css!", "../directives/aggregators", "../directives/group_by/group_by_tags", "../directives/group_by/group_by_time", "../directives/group_by/group_by_value", "../directives/metric_name_field", "../directives/tags_select", "./request/target_validator"], function (exports_1, context_1) {
     "use strict";
     var __extends = (this && this.__extends) || (function () {
-        var extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        };
         return function (d, b) {
             extendStatics(d, b);
             function __() { this.constructor = d; }
