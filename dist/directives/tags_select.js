@@ -48,8 +48,8 @@ System.register(["lodash"], function (exports_1, context_1) {
                 TagsSelectCtrl.prototype.updateSelectedValues = function () {
                     var _this = this;
                     this.selectedValues = this.segments
-                        .map(function (tagSegment) { return tagSegment.value; })
-                        .filter(function (value) { return !_this.isPlusButton(value); });
+                        .filter(function (segment) { return !_this.isPlusButton(segment); })
+                        .map(function (tagSegment) { return tagSegment.value; });
                 };
                 TagsSelectCtrl.prototype.isPlusButton = function (segment) {
                     return !lodash_1.default.isNil(segment) &&

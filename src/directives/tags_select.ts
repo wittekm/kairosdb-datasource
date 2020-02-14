@@ -36,8 +36,8 @@ export class TagsSelectCtrl {
 
     private updateSelectedValues(): void {
         this.selectedValues = this.segments
-            .map((tagSegment) => tagSegment.value)
-            .filter((value) => !this.isPlusButton(value));
+            .filter((segment) => !this.isPlusButton(segment))
+            .map((tagSegment) => tagSegment.value);
     }
 
     private isPlusButton(segment): boolean {
