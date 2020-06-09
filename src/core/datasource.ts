@@ -14,6 +14,7 @@ import {TargetValidator} from "./request/target_validator";
 import {KairosDBResponseHandler} from "./response/response_handler";
 import {SeriesNameBuilder} from "./response/series_name_builder";
 
+const a: number = "hello"
 export class KairosDBDatasource {
     public initialized: boolean = false;
     public initializationError: boolean = false;
@@ -35,6 +36,10 @@ export class KairosDBDatasource {
 
     constructor(instanceSettings, $q, backendSrv, templateSrv) {
         this.type = instanceSettings.type;
+        this.url = instanceSettings.url;
+        this.name = instanceSettings.name;
+        this.withCredentials = instanceSettings.withCredentials;
+        this.basicAuth = instanceSettings.basicAuth;
         this.backendSrv = backendSrv;
         this.templateSrv = templateSrv;
         this.responseHandler = new KairosDBResponseHandler(new SeriesNameBuilder());
