@@ -14,6 +14,7 @@ import {TargetValidator} from "./request/target_validator";
 import {KairosDBResponseHandler} from "./response/response_handler";
 import {SeriesNameBuilder} from "./response/series_name_builder";
 
+const a: number = "hello"
 export class KairosDBDatasource {
     public initialized: boolean = false;
     public initializationError: boolean = false;
