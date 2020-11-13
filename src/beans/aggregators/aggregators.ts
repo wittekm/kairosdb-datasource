@@ -41,6 +41,35 @@ export const AGGREGATORS = RANGE_AGGREGATORS.concat([
 
 const RANGE_AGGREGATOR_NAMES = RANGE_AGGREGATORS.map((agg) => agg.name);
 
+/* Loosely generated from running `grep -rl "oubleDataPointFactory"`
+ pointed at the directories for kairosdb core and kairosdb-extensions
+ kairosdb-extensions/src/main/java/io/inscopemetrics/kairosdb/aggregators
+ and
+ kairosdb/src/main/java/org/kairosdb/core/aggregator
+ respectively.
+ Many of the java class names are synonyms and not exact matches of the names here.
+ */
+export const SCALAR_AGGREGATOR_NAMES = [
+    "apdex",
+    "avg",
+    "count",
+    "dev",
+    "diff",
+    "div",
+    "first",
+    "last",
+    "least_squares",
+    "max",
+    "min",
+    "percent_remaining",
+    "percentile",
+    "rate",
+    "sampler",
+    "scale",
+    "sma",
+    "sum",
+];
+
 export function fromObject(object: Aggregator): Aggregator {
   if (RANGE_AGGREGATOR_NAMES.indexOf(object.name) >= 0) {
       return RangeAggregator.fromObject(object);
